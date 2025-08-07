@@ -10,6 +10,40 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from PIL import Image
 
+# Uma paleta de 16 cores em formato RGB
+Paletacores = [
+    (0, 0, 0),         # Preto
+    (255, 255, 255),   # Branco
+    (255, 0, 0),       # Vermelho
+    (0, 255, 0),       # Verde
+    (0, 0, 255),       # Azul
+    (255, 255, 0),     # Amarelo
+    (0, 255, 255),     # Ciano
+    (255, 0, 255),     # Magenta
+    (192, 192, 192),   # Cinza Claro
+    (128, 128, 128),   # Cinza
+    (128, 0, 0),       # Marrom
+    (128, 128, 0),     # Oliva
+    (0, 128, 0),       # Verde Escuro
+    (128, 0, 128),     # Púrpura
+    (0, 128, 128),     # Teal
+    (0, 0, 128)        # Azul Marinho
+]
+
+#encontar a cor pela distancia euclidiana
+def encontrarcor(cororiginal,paleta):
+    r_orig,g_orig,b_orig = cororiginal
+    corproxima = None
+    menordistancia = float('inf')
+
+    for r_pal, g_pal, b_pal in paleta:
+        distancia = (r_orig - r_pal)**2 + (g_orig - g_pal)**2 + (b_orig - b_pal)**2
+
+        if distancia < menordistancia:
+            menordistancia = distancia
+            corproxima = (r_pal,g_pal,b_pal)
+    return corproxima
+
 #transforma a imagem em matriz
 def processarimagem(url):
     try:
@@ -35,9 +69,11 @@ def processarimagem(url):
             for x in range(64):
                 #vai obter o valor do codigo rgb dos pixels
                 r,g,b = pixels[x,y]
-                #converte os valores para uma cor hexadecimal
-                hexcor = f'#{r:02x}{g:02x}{b:02x}'
-                linha.append(hexcor)
+                cormapeada = encontrarcor((r,g,b),Paletacores)
+                #gera o codigo hexa das cores
+                r_map , g_map, b_map = cormapeada
+                hexacor = f'#{r_map:02x}{g_map:02x}{b_map:02x}'
+                linha.append(hexacor)
             matrizpixels.append(linha) # adiciona a linha completa a matriz
         return matrizpixels # retorna a matriz com todos os pixels
 
@@ -74,7 +110,7 @@ def desenharimagem(matrizpronta,velocidade):
         #inicia o serviço do Chromedrive
         service = Service(ChromeDriverManager().install())
         driver = webdriver.Chrome(service=service)
-    except Exeception as e:
+    except Exception as e:
         print("erro ao iniciar ChromeDRIVER")
         httpd.shutdown()
         print("servidor web parado")
