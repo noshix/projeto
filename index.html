@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mural de Pixels</title>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            background-color: #222;
+        }
+
+        #mural {
+            display: grid;
+            height: 100vh;
+            width: 100vw;
+            grid-template-columns: repeat(64, 1fr);
+            grid-template-rows: repeat(64, 1fr);
+        }
+
+        .pixel {
+            background-color: white;
+            border: 0.5px solid #444;
+            box-sizing: border-box;
+            width: 100%;
+            height: 100%;
+        }
+
+        .pixel:hover {
+            outline: 1px solid #00ff00;
+        }
+    </style>
+</head>
+<body>
+    <div id="mural"></div>
+
+    <script>
+        const mural = document.getElementById("mural");
+
+        for (let y = 0; y < 64; y++) {
+            for (let x = 0; x < 64; x++) {
+                const pixel = document.createElement("div");
+                pixel.classList.add("pixel");
+                pixel.dataset.x = x;
+                pixel.dataset.y = y;
+
+                mural.appendChild(pixel);
+            }
+        }
+
+        // Esta é a função que o seu bot do Python vai chamar
+        function pintarPixel(x, y, cor) {
+            const pixel = document.querySelector(`.pixel[data-x='${x}'][data-y='${y}']`);
+            if (pixel) {
+                pixel.style.backgroundColor = cor;
+            }
+        }
+    </script>
+</body>
+</html>
