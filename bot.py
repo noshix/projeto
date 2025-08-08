@@ -1,5 +1,6 @@
 import os
 import time
+import sys
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
@@ -9,6 +10,7 @@ from http.server import SimpleHTTPRequestHandler, HTTPServer
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from PIL import Image
+import functools
 
 # Uma paleta de 16 cores em formato RGB
 Paletacores = [
@@ -85,10 +87,33 @@ def processarimagem(url):
 
 
 #inicia o servidorchrome
+import os
+import sys
+import threading
+from http.server import SimpleHTTPRequestHandler, HTTPServer
+import functools
+
 def iniciar_servidor_temporario():
-    """Inicia um servidor web temporário na porta 8000."""
-    handler = SimpleHTTPRequestHandler
-    httpd = HTTPServer(("localhost", 8000), handler)
+    # Detecta o caminho base da mesma forma que antes
+    if getattr(sys, 'frozen', False):
+        base_path = sys._MEIPASS
+    else:
+        base_path = os.path.dirname(os.path.abspath(__file__))
+
+    # Verifica se a pasta 'data' existe e usa-a, se sim
+    data_path = os.path.join(base_path, 'data')
+    if os.path.exists(data_path):
+        server_path = data_path
+    else:
+        server_path = base_path
+    
+    # Cria uma classe de handler que serve os arquivos do server_path
+    class MyHandler(SimpleHTTPRequestHandler):
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, directory=server_path, **kwargs)
+
+    # Inicia o servidor com a nossa classe personalizada
+    httpd = HTTPServer(("localhost", 8000), MyHandler)
     print("Servidor web iniciado em http://localhost:8000")
     threading.Thread(target=httpd.serve_forever).start()
     return httpd
